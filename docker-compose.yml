@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16
@@ -10,10 +8,24 @@ services:
       POSTGRES_DB: test_task_prod
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
     networks:
       - postgres_network
+
+  app:
+    image: python:3.11-slim
+    container_name: app_container
+    build:
+      context: .
+    volumes:
+      - .:/usr/src/app
+    working_dir: /usr/src/app
+    command: [ "python", "run.py" ]
+    depends_on:
+      - postgres
+    networks:
+      - postgres_network
+    env_file:
+      - .env
 
 networks:
   postgres_network:
